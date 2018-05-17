@@ -4,7 +4,7 @@
 
 const int numCycles = 10;
 
-bool isImageEqual(const cv::Mat1b& img1, const cv::Mat1b& img2)
+static bool isImageEqual(const cv::Mat1b& img1, const cv::Mat1b& img2)
 {
     cv::Mat1b lr = img1 - img2;
     cv::Mat1b rl = img2 - img1;
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     cv::Mat srcImage = cv::imread( argv[1] );
     cv::Mat1b grayImage;
     cv::cvtColor(srcImage, grayImage, cv::COLOR_BGR2GRAY );
-    cv::Size kernel(501, 501);
+    cv::Size kernel(301, 301);
     cv::Mat1b erodeImage;
 
     auto startOnePass = std::chrono::system_clock::now();
