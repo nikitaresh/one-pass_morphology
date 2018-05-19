@@ -8,6 +8,7 @@ An important property of morphological filters is separableness. A 2D morphologi
 Theoretical gain between these two implemintations hardly achieved in practice due to different processor optimizations, such as sequential memory access, Intrinsic functions and etc. The naive dilatation algorithm allow to use sequential memory access and work very fast for small kernels. The one-pass dilatation algorithm doesn't have opportunety to use a sequential memory access for rows and columns filters simultaneously. This repository contains a fast implementation is based on a sequential memory access and Intrinsic functions for the columns dilatation, and the rows dilatation is calculated as the columns dilatation for a transposed image.
 
 **Time comparison of OnePassMorphology and OpenCV implementations**
+
 Time comparison was conducted for the one-pass and OpenCV implementations used Intrinsic functions. The result is shown on the image below. The experiment was conducted on a Core i7-4700HQ processor without thread parallelization. The x-axis is the size of a square kernel.
 
 <p align="center">
