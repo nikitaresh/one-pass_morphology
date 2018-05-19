@@ -1,8 +1,9 @@
 
 #include <one_pass_morphology.h>
 #include <chrono>
+#include <string>
 
-const int numCycles = 10;
+const int numCycles = 1;
 
 static bool isImageEqual(const cv::Mat1b& img1, const cv::Mat1b& img2)
 {
@@ -23,12 +24,12 @@ int main(int argc, char *argv[])
     cv::Mat srcImage = cv::imread( argv[1] );
     cv::Mat1b grayImage;
     cv::cvtColor(srcImage, grayImage, cv::COLOR_BGR2GRAY );
-    cv::Size kernel(301, 301);
+    cv::Size kernel(55, 55);
     cv::Mat1b erodeImage;
 
     auto startOnePass = std::chrono::system_clock::now();
     for( int index = 0; index < numCycles; ++index ) {
-        OnePassMorphology::dilate(grayImage, erodeImage, kernel);
+        OnePassMorphology::dilateIntr(grayImage, erodeImage, kernel);
     }
     auto endOnePass = std::chrono::system_clock::now();
 
