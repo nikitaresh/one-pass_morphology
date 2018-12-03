@@ -9,12 +9,12 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 set( HEADER sources/one_pass_morphology.h )
 
-set( SOURCES sources/main.cpp
-             sources/one_pass_morphology.cpp
-             )
+set( SOURCES sources/one_pass_morphology.cpp )
              
-add_executable( one_pass_morphology ${HEADER} ${SOURCES} )
+add_library( one_pass_morphology ${HEADER} ${SOURCES} )
 target_link_libraries( one_pass_morphology ${OpenCV_LIBS} )
+
+add_subdirectory( test )
 
 set( RELEASE_PROFILING OFF )
 # Release with debug info

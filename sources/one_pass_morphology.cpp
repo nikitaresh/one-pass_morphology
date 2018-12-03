@@ -6,6 +6,10 @@
 
 bool OnePassMorphology::dilate(const cv::Mat1b& image, cv::Mat1b& result, const cv::Size& kernel)
 {
+    if( image.empty() ) {
+        return false;
+    }
+
     if( result.empty() ) {
         result = cv::Mat1b(image.rows, image.cols);
     }
@@ -19,20 +23,25 @@ bool OnePassMorphology::dilate(const cv::Mat1b& image, cv::Mat1b& result, const 
     }
 
     for( int rowIndex = 0; rowIndex < result.rows; ++rowIndex ) {
-        dilateRow( image.ptr(rowIndex), result.ptr(rowIndex), kernel.width, result.cols );
+        dilateRow(image.ptr(rowIndex), result.ptr(rowIndex),
+                  kernel.width, result.cols );
     }
 
     for(int colIndex = 0; colIndex < image.cols; ++colIndex) {
-        dilateColumn(result.ptr() + colIndex, result.ptr() + colIndex, kernel.height, image.rows, image.cols);
+        dilateColumn(result.ptr() + colIndex, result.ptr() + colIndex,
+                     kernel.height, image.rows, image.cols);
     }
 
     return true;
 }
 
 
-bool OnePassMorphology::dilateRow(const uchar* rowInp, uchar* rowOut, int kernelWidth, int rowSize)
+bool OnePassMorphology::dilateRow(const uchar* rowInp, uchar* rowOut,
+                                  int kernelWidth, int rowSize)
 {
-    if( rowInp == nullptr || rowOut == nullptr || kernelWidth % 2 == 0 || kernelWidth < 2 ) {
+    if( rowInp == nullptr || rowOut == nullptr ||
+        kernelWidth % 2 == 0 || kernelWidth < 2 )
+    {
         return false;
     }
 
@@ -49,9 +58,12 @@ bool OnePassMorphology::dilateRow(const uchar* rowInp, uchar* rowOut, int kernel
     {
         for( int row = 1; row < kernelWidth; ++row )
         {
-            maxAfter[step * kernelWidth + row] = std::max(rowInp[step * kernelWidth + row], maxAfter[step * kernelWidth + row - 1]);
+            maxAfter[step * kernelWidth + row] = 
+                std::max(rowInp[step * kernelWidth + row],
+                         maxAfter[step * kernelWidth + row - 1]);
             maxBefore[(step + 1) * kernelWidth - row - 1] = 
-                std::max(rowInp[(step + 1) * kernelWidth - row - 1], maxBefore[(step + 1) * kernelWidth - row]);
+                std::max(rowInp[(step + 1) * kernelWidth - row - 1],
+                         maxBefore[(step + 1) * kernelWidth - row]);
         }
     }
 
@@ -74,7 +86,8 @@ bool OnePassMorphology::dilateRow(const uchar* rowInp, uchar* rowOut, int kernel
     }
 
     for( int row = kernelWidthHalf; row < rowSize - kernelWidthHalf; ++row ) {
-        rowOut[row] = std::max(maxBefore[row - kernelWidthHalf], maxAfter[row + kernelWidthHalf]);
+        rowOut[row] = std::max(maxBefore[row - kernelWidthHalf],
+                               maxAfter[row + kernelWidthHalf]);
     }
 
     const int prevKernel = (wholeKernelsSize == rowSize) ? 
@@ -95,10 +108,12 @@ bool OnePassMorphology::dilateRow(const uchar* rowInp, uchar* rowOut, int kernel
     return true;
 }
 
-bool OnePassMorphology::dilateColumn(const uchar* colInp, uchar* colOut, int kernelHeight, 
-                                     int colSize, int stride)
+bool OnePassMorphology::dilateColumn(const uchar* colInp, uchar* colOut,
+                                     int kernelHeight, int colSize, int stride)
 {
-    if( colInp == nullptr || colOut == nullptr || kernelHeight % 2 == 0 || kernelHeight < 2 ) {
+    if( colInp == nullptr || colOut == nullptr ||
+        kernelHeight % 2 == 0 || kernelHeight < 2 )
+    {
         return false;
     }
 
@@ -116,9 +131,12 @@ bool OnePassMorphology::dilateColumn(const uchar* colInp, uchar* colOut, int ker
     {
         for( int col = 1; col < kernelHeight; ++col )
         {
-            maxAfter[step * kernelHeight + col] = std::max(colInp[(step * kernelHeight + col) * stride], maxAfter[step * kernelHeight + col - 1]);
+            maxAfter[step * kernelHeight + col] = 
+                std::max(colInp[(step * kernelHeight + col) * stride],
+                         maxAfter[step * kernelHeight + col - 1]);
             maxBefore[(step + 1) * kernelHeight - col - 1] = 
-                std::max(colInp[((step + 1) * kernelHeight - col - 1) * stride], maxBefore[(step + 1) * kernelHeight - col]);
+                std::max(colInp[((step + 1) * kernelHeight - col - 1) * stride],
+                         maxBefore[(step + 1) * kernelHeight - col]);
         }
     }
 
@@ -128,7 +146,8 @@ bool OnePassMorphology::dilateColumn(const uchar* colInp, uchar* colOut, int ker
         maxAfter[col + 1] = std::max(colInp[(col + 1) * stride], maxAfter[col]);
 
         int curIndex = colSize - col + wholeKernelsSize - 1;
-        maxBefore[curIndex - 1] = std::max(colInp[(curIndex - 1) * stride], maxBefore[curIndex]);
+        maxBefore[curIndex - 1] =
+            std::max(colInp[(curIndex - 1) * stride], maxBefore[curIndex]);
     }
 
     const int kernelHeightHalf = kernelHeight / 2;
@@ -141,7 +160,9 @@ bool OnePassMorphology::dilateColumn(const uchar* colInp, uchar* colOut, int ker
     }
 
     for( int col = kernelHeightHalf; col < colSize - kernelHeightHalf; ++col ) {
-        colOut[col * stride] = std::max(maxBefore[col - kernelHeightHalf], maxAfter[col + kernelHeightHalf]);
+        colOut[col * stride] = 
+            std::max(maxBefore[col - kernelHeightHalf],
+                     maxAfter[col + kernelHeightHalf]);
     }
 
     const int prevKernel = (wholeKernelsSize == colSize) ? 
@@ -155,7 +176,8 @@ bool OnePassMorphology::dilateColumn(const uchar* colInp, uchar* colOut, int ker
             colOut[col * stride] = maxBefore[indexBefore];
         }
         else {
-            colOut[col * stride] = std::max(maxBefore[indexBefore], maxAfter[indexAfter]);
+            colOut[col * stride] =
+                std::max( maxBefore[indexBefore], maxAfter[indexAfter] );
         }
     }
 
@@ -167,8 +189,13 @@ bool OnePassMorphology::dilateColumn(const uchar* colInp, uchar* colOut, int ker
 // Intrinsics implementation
 //////////////////////////////////////////////////////////////////////////
 
-bool OnePassMorphology::dilateIntr(const cv::Mat1b& image, cv::Mat1b& result, const cv::Size& kernel)
+bool OnePassMorphology::dilateIntr(const cv::Mat1b& image, cv::Mat1b& result,
+                                   const cv::Size& kernel)
 {
+    if( image.empty() ) {
+        return false;
+    }
+
     if( result.empty() ) {
         result = cv::Mat1b(image.rows, image.cols);
     }
@@ -191,9 +218,12 @@ bool OnePassMorphology::dilateIntr(const cv::Mat1b& image, cv::Mat1b& result, co
     return true;
 }
 
-bool OnePassMorphology::dilateColumnsIntr(const cv::Mat1b& image, cv::Mat1b& result, int kernelHeight)
+bool OnePassMorphology::dilateColumnsIntr(const cv::Mat1b& image, cv::Mat1b& result,
+                                          int kernelHeight)
 {
-    if( image.rows != result.rows || image.cols != result.cols || image.step.p[0] != result.step.p[0] ) {
+    if( image.rows != result.rows || image.cols != result.cols ||
+        image.step.p[0] != result.step.p[0] )
+    {
         return false;
     }
 
@@ -211,10 +241,12 @@ bool OnePassMorphology::dilateColumnsIntr(const cv::Mat1b& image, cv::Mat1b& res
     for( int row = kernelHeight; row < imgHeight; row += kernelHeight )
     {
         memcpy( maxAfterPtr + row * stride, imagePtr + row * stride, stride );
-        memcpy( maxBeforePtr + (row - 1) * stride, imagePtr + (row - 1) * stride, stride );
+        memcpy( maxBeforePtr + (row - 1) * stride,
+                imagePtr + (row - 1) * stride, stride );
     }
     memcpy( maxAfterPtr, imagePtr, stride );
-    memcpy( maxBeforePtr + (imgHeight - 1) * stride, imagePtr + (imgHeight - 1) * stride, stride );
+    memcpy( maxBeforePtr + (imgHeight - 1) * stride,
+            imagePtr + (imgHeight - 1) * stride, stride );
 
     const int numKernelSteps = imgHeight / kernelHeight;
     const int numWidthSteps = imgWidth / 16;
