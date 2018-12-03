@@ -2,6 +2,10 @@ cmake_minimum_required( VERSION 3.0 )
 
 project( one_pass_morphology )
 
+if(CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif()
+
 find_package( OpenCV REQUIRED )
 
 include_directories( sources )
